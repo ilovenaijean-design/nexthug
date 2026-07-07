@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>下次相遇倒數</title>
+  <style>
+    :root {
+      --bg1: #ffe3ec;
+      --bg2: #ffd6a5;
+      --card: rgba(255, 255, 255, 0.78);
+      --text: #3b2f2f;
+      --muted: #7a6262;
+      --accent: #ff6f91;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 35%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 430px;
+      padding: 34px 24px;
+      border-radius: 30px;
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 22px 65px rgba(120, 70, 70, 0.22);
+      text-align: center;
+    }
+
+    .emoji {
+      font-size: 46px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      margin: 14px 0 30px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 22px;
+      padding: 20px 10px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .num {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .label {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .date {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .message {
+      font-size: 16px;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    .heart {
+      animation: beat 1.4s infinite;
+      display: inline-block;
+    }
+
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      20% { transform: scale(1.18); }
+      40% { transform: scale(1); }
+    }
+
+    .ended {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.5;
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="emoji">🌙</div>
+    <h1>下次相遇倒數</h1>
+    <div class="subtitle">
+      不是每一天都能見面，<br />
+      但每一秒都在靠近。
+    </div>
+
+    <section id="countdown" class="countdown">
+      <div class="box">
+        <div id="days" class="num">--</div>
+        <div class="label">天</div>
+      </div>
+      <div class="box">
+        <div id="hours" class="num">--</div>
+        <div class="label">小時</div>
+      </div>
+      <div class="box">
+        <div id="minutes" class="num">--</div>
+        <div class="label">分鐘</div>
+      </div>
+      <div class="box">
+        <div id="seconds" class="num">--</div>
+        <div class="label">秒</div>
+      </div>
+    </section>
+
+    <div id="targetDate" class="date"></div>
+
+    <p class="message">
+      等見面的那一刻，<br />
+      所有等待都會值得 <span class="heart">❤️</span>
+    </p>
+  </main>
+
+  <script>
+    // 下次相遇時間：2026/7/24 13:00，台灣時間 UTC+8
+    const meetingTime = "2026-07-24T13:00:00+08:00";
+    const meetingText = "2026 年 7 月 24 日 13:00";
+
+    const target = new Date(meetingTime).getTime();
+    document.getElementById("targetDate").innerText = "相遇時間：" + meetingText;
+
+    function updateCountdown() {
+      const now = Date.now();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        document.querySelector(".card").innerHTML = `
+          <div class="emoji">❤️</div>
+          <h1>終於見面了</h1>
+          <div class="ended">這一刻，等到了。</div>
+          <p class="message">願今天比想像中更美好。</p>
+        `;
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+      const minutes = Math.floor(diff / (1000 * 60)) % 60;
+      const seconds = Math.floor(diff / 1000) % 60;
+
+      document.getElementById("days").innerText = days;
+      document.getElementById("hours").innerText = String(hours).padStart(2, "0");
+      document.getElementById("minutes").innerText = String(minutes).padStart(2, "0");
+      document.getElementById("seconds").innerText = String(seconds).padStart(2, "0");
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
