@@ -5,194 +5,356 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>下次跳抱倒數</title>
   <style>
-    :root{
-      --gold:#f6c65b;
-      --gold2:#ffe7a3;
-      --glass:rgba(20,18,12,.62);
-      --border:rgba(246,198,91,.72);
-      --white:#fff7df;
+    :root {
+      --gold: #f6c65b;
+      --gold-light: #ffe8a6;
+      --gold-deep: #b98222;
+      --white: #fff9e8;
+      --glass: rgba(18, 17, 12, 0.62);
+      --glass-strong: rgba(12, 11, 8, 0.76);
+      --border: rgba(246, 198, 91, 0.72);
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
-      color:var(--white);
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      color: var(--white);
+      background: #05070b;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
       background:
-        linear-gradient(rgba(5,6,10,.28), rgba(5,6,10,.34)),
-        url("background.png") center top / cover no-repeat fixed;
-      overflow-x:hidden;
+        linear-gradient(to bottom, rgba(0,0,0,.18), rgba(0,0,0,.45)),
+        url("background.png") center top / cover no-repeat;
+      z-index: -3;
     }
-    .page{
-      min-height:100vh;
-      padding:28px 20px 56px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(246,198,91,.20), transparent 34%),
+        radial-gradient(circle at 20% 70%, rgba(246,198,91,.12), transparent 30%),
+        linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.32));
+      z-index: -2;
+      pointer-events: none;
     }
-    .topbar{
-      width:min(920px,100%);
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:56px;
+
+    .stars, .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
     }
-    .pill{
-      border:1px solid var(--border);
-      background:rgba(12,13,18,.58);
-      border-radius:16px;
-      padding:12px 18px;
-      color:var(--white);
-      box-shadow:0 0 18px rgba(246,198,91,.22);
-      backdrop-filter:blur(12px);
-      font-weight:600;
-      letter-spacing:.02em;
+
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      box-shadow: 0 0 14px var(--gold);
+      animation: twinkle 3s infinite ease-in-out;
+      opacity: .75;
     }
-    .hero{
-      text-align:center;
-      width:min(940px,100%);
-      margin-top:8px;
+
+    .float-heart {
+      position: absolute;
+      color: rgba(246, 198, 91, .72);
+      font-size: 18px;
+      animation: floatUp linear infinite;
+      text-shadow: 0 0 16px rgba(246,198,91,.6);
     }
-    .heart{
-      font-size:60px;
-      color:var(--gold2);
-      text-shadow:0 0 18px var(--gold),0 0 36px rgba(246,198,91,.7);
-      animation:pulse 1.8s infinite;
+
+    @keyframes twinkle {
+      0%, 100% { opacity: .2; transform: scale(.8); }
+      50% { opacity: 1; transform: scale(1.25); }
     }
-    h1{
-      margin:8px 0 12px;
-      font-size:clamp(48px,9vw,92px);
-      letter-spacing:.08em;
-      color:var(--gold2);
-      text-shadow:0 0 16px var(--gold),0 0 42px rgba(246,198,91,.62);
-      font-weight:800;
+
+    @keyframes floatUp {
+      from { transform: translateY(105vh) rotate(0deg); opacity: 0; }
+      12% { opacity: .85; }
+      88% { opacity: .65; }
+      to { transform: translateY(-20vh) rotate(24deg); opacity: 0; }
     }
-    .subtitle{
-      font-size:clamp(20px,3.2vw,32px);
-      margin:0 0 12px;
-      text-shadow:0 2px 18px rgba(0,0,0,.7);
+
+    .page {
+      min-height: 100vh;
+      width: min(100%, 980px);
+      margin: 0 auto;
+      padding: 28px 18px 54px;
+      text-align: center;
     }
-    .script{
-      color:var(--gold);
-      font-family:"Brush Script MT","Segoe Script",cursive;
-      font-size:clamp(31px,5vw,54px);
-      margin:0 0 38px;
-      text-shadow:0 0 18px rgba(246,198,91,.6);
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: clamp(48px, 8vh, 82px);
     }
-    .count-card,.quote-card{
-      width:min(900px,100%);
-      border:1px solid var(--border);
-      background:var(--glass);
-      border-radius:28px;
+
+    .pill {
+      border: 1px solid var(--border);
+      background: rgba(12, 13, 18, .58);
+      border-radius: 16px;
+      padding: 12px 18px;
+      color: var(--white);
+      box-shadow: 0 0 18px rgba(246,198,91,.24), inset 0 0 18px rgba(255,255,255,.04);
+      backdrop-filter: blur(14px);
+      font-weight: 700;
+      letter-spacing: .02em;
+      font-size: 15px;
+    }
+
+    button.pill {
+      cursor: pointer;
+    }
+
+    .logo-heart {
+      font-size: clamp(50px, 8vw, 78px);
+      color: var(--gold-light);
+      text-shadow: 0 0 18px var(--gold), 0 0 42px rgba(246,198,91,.72);
+      animation: heartBeat 1.9s infinite ease-in-out;
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.1); }
+      55% { transform: scale(.98); }
+    }
+
+    h1 {
+      margin: 8px 0 16px;
+      font-size: clamp(50px, 9vw, 98px);
+      letter-spacing: .08em;
+      color: var(--gold-light);
+      font-weight: 900;
+      text-shadow:
+        0 0 12px rgba(255,232,166,.95),
+        0 0 32px rgba(246,198,91,.75),
+        0 0 70px rgba(246,198,91,.35);
+    }
+
+    .subtitle {
+      margin: 0 0 12px;
+      font-size: clamp(19px, 3vw, 31px);
+      text-shadow: 0 3px 20px rgba(0,0,0,.8);
+    }
+
+    .script {
+      margin: 0 0 42px;
+      color: var(--gold);
+      font-family: "Brush Script MT", "Segoe Script", cursive;
+      font-size: clamp(30px, 5vw, 56px);
+      text-shadow: 0 0 20px rgba(246,198,91,.55);
+    }
+
+    .glass {
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+        var(--glass);
+      backdrop-filter: blur(18px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.04) inset,
-        0 22px 80px rgba(0,0,0,.42),
-        0 0 40px rgba(246,198,91,.18);
-      backdrop-filter:blur(14px);
+        0 24px 90px rgba(0,0,0,.45),
+        0 0 46px rgba(246,198,91,.20);
     }
-    .count-card{
-      padding:42px 26px 40px;
-      position:relative;
+
+    .count-card {
+      position: relative;
+      width: 100%;
+      border-radius: 30px;
+      padding: clamp(30px, 5vw, 46px) clamp(14px, 4vw, 32px);
     }
-    .count-title{
-      color:var(--white);
-      font-size:clamp(19px,3vw,28px);
-      margin-bottom:34px;
-      font-weight:700;
+
+    .count-title {
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 800;
+      margin-bottom: 34px;
     }
-    .timer{
-      display:grid;
-      grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
-      align-items:center;
-      gap:10px;
+
+    .timer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      gap: clamp(4px, 1.4vw, 14px);
+      align-items: center;
     }
-    .num{
-      font-size:clamp(54px,12vw,96px);
-      color:var(--gold);
-      font-weight:800;
-      line-height:1;
-      text-shadow:0 0 18px rgba(246,198,91,.45);
+
+    .num {
+      color: var(--gold);
+      font-size: clamp(50px, 12vw, 104px);
+      line-height: 1;
+      font-weight: 900;
+      text-shadow: 0 0 22px rgba(246,198,91,.55);
+      transition: transform .22s ease, filter .22s ease;
     }
-    .colon{
-      font-size:clamp(36px,8vw,70px);
-      opacity:.85;
-      color:#fff8df;
-      transform:translateY(-18px);
+
+    .num.flip {
+      transform: translateY(-4px) scale(1.04);
+      filter: brightness(1.25);
     }
-    .label-zh{
-      margin-top:20px;
-      font-size:clamp(20px,3vw,30px);
+
+    .colon {
+      font-size: clamp(36px, 8vw, 74px);
+      transform: translateY(-18px);
+      opacity: .86;
     }
-    .label-en{
-      margin-top:8px;
-      font-size:15px;
-      letter-spacing:.06em;
-      opacity:.92;
+
+    .label-zh {
+      margin-top: 18px;
+      font-size: clamp(20px, 3vw, 30px);
     }
-    .spark{
-      position:absolute;
-      color:var(--gold2);
-      font-size:24px;
-      text-shadow:0 0 16px var(--gold);
+
+    .label-en {
+      margin-top: 8px;
+      font-size: clamp(11px, 1.6vw, 15px);
+      letter-spacing: .08em;
+      opacity: .92;
     }
-    .s1{left:24px;top:28px}
-    .s2{right:24px;top:28px}
-    .s3{left:24px;bottom:28px}
-    .s4{right:24px;bottom:28px}
-    .quote-mark{
-      color:var(--gold);
-      font-size:86px;
-      line-height:.3;
-      margin-top:34px;
-      text-shadow:0 0 22px rgba(246,198,91,.55);
+
+    .spark {
+      position: absolute;
+      color: var(--gold-light);
+      text-shadow: 0 0 18px var(--gold);
+      animation: twinkle 2.4s infinite ease-in-out;
     }
-    .quote-card{
-      width:min(660px,100%);
-      margin-top:0;
-      padding:40px 28px 36px;
-      text-align:center;
-      font-size:clamp(23px,3.4vw,32px);
-      line-height:1.8;
-      position:relative;
+    .s1 { left: 26px; top: 26px; }
+    .s2 { right: 26px; top: 26px; animation-delay: .6s; }
+    .s3 { left: 26px; bottom: 26px; animation-delay: 1.1s; }
+    .s4 { right: 26px; bottom: 26px; animation-delay: 1.6s; }
+
+    .quote-mark {
+      color: var(--gold);
+      font-size: clamp(66px, 10vw, 100px);
+      line-height: .4;
+      margin: 34px 0 0;
+      text-shadow: 0 0 24px rgba(246,198,91,.65);
     }
-    .like{
-      margin-top:18px;
-      color:var(--gold);
-      font-family:"Brush Script MT","Segoe Script",cursive;
-      font-size:clamp(34px,5vw,54px);
-      text-shadow:0 0 18px rgba(246,198,91,.5);
+
+    .quote-card {
+      width: min(690px, 100%);
+      margin: 0 auto;
+      border-radius: 28px;
+      padding: clamp(30px, 5vw, 44px) 24px;
+      font-size: clamp(22px, 3.5vw, 34px);
+      line-height: 1.8;
     }
-    @keyframes pulse{
-      0%,100%{transform:scale(1)}
-      45%{transform:scale(1.09)}
+
+    .like {
+      margin-top: 16px;
+      color: var(--gold);
+      font-family: "Brush Script MT", "Segoe Script", cursive;
+      font-size: clamp(34px, 5vw, 58px);
+      text-shadow: 0 0 18px rgba(246,198,91,.62);
     }
-    @media(max-width:640px){
-      body{background-attachment:scroll}
-      .page{padding:20px 14px 38px}
-      .topbar{margin-bottom:46px}
-      .pill{font-size:14px;padding:10px 12px;border-radius:14px}
-      .count-card{padding:32px 14px 34px;border-radius:24px}
-      .timer{gap:4px}
-      .colon{transform:translateY(-14px)}
-      .label-en{font-size:11px}
-      .quote-card{border-radius:24px}
+
+    .since-card {
+      width: min(360px, 100%);
+      margin: 30px auto 0;
+      border-radius: 24px;
+      padding: 22px 18px;
+      background: rgba(14,13,10,.58);
+    }
+
+    .since-title {
+      font-size: 16px;
+      opacity: .9;
+      margin-bottom: 8px;
+    }
+
+    .since-days {
+      font-size: 42px;
+      color: var(--gold);
+      font-weight: 900;
+      line-height: 1.1;
+      text-shadow: 0 0 18px rgba(246,198,91,.5);
+    }
+
+    .since-date {
+      font-size: 14px;
+      margin-top: 8px;
+      opacity: .88;
+    }
+
+    .ended {
+      width: min(720px, 100%);
+      margin: 20px auto 0;
+      border-radius: 30px;
+      padding: 42px 24px;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 640px) {
+      body::before {
+        background-position: center top;
+        background-attachment: scroll;
+      }
+
+      .page {
+        padding: 18px 12px 38px;
+      }
+
+      .topbar {
+        margin-bottom: 42px;
+      }
+
+      .pill {
+        font-size: 13px;
+        padding: 10px 11px;
+        border-radius: 14px;
+      }
+
+      h1 {
+        letter-spacing: .03em;
+      }
+
+      .count-card {
+        border-radius: 24px;
+      }
+
+      .timer {
+        grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      }
+
+      .colon {
+        transform: translateY(-12px);
+      }
+
+      .quote-card {
+        border-radius: 24px;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="stars" id="stars"></div>
+  <div class="hearts" id="hearts"></div>
+
   <main class="page">
     <div class="topbar">
       <div class="pill">💛 <span id="todayText"></span></div>
-      <button class="pill" onclick="toggleMusic()">♫ 播放音樂</button>
+      <button class="pill" id="musicBtn" onclick="toggleMusic()">♫ 播放音樂</button>
     </div>
 
-    <section class="hero">
-      <div class="heart">♡</div>
+    <section id="mainContent">
+      <div class="logo-heart">♡</div>
       <h1>下次跳抱倒數</h1>
       <p class="subtitle">每一天，都在想念妳的日子裡 💛</p>
       <p class="script">Can’t wait to see you again</p>
 
-      <div class="count-card">
+      <div class="count-card glass">
         <div class="spark s1">✦</div>
         <div class="spark s2">✦</div>
         <div class="spark s3">✦</div>
@@ -229,57 +391,116 @@
 
       <div class="quote-mark">“</div>
 
-      <div class="quote-card">
+      <div class="quote-card glass">
         距離下次跳抱越來越近了，<br />
         每天都期待著那一天的到來。
         <div class="like">I like you. 〰♡</div>
+      </div>
+
+      <div class="since-card glass">
+        <div class="since-title">我們已經認識</div>
+        <div class="since-days"><span id="sinceDays">--</span> 天</div>
+        <div class="since-date">Since 2026.06.24</div>
       </div>
     </section>
   </main>
 
   <script>
     const targetTime = new Date("2026-07-24T13:00:00+08:00").getTime();
+    const sinceTime = new Date("2026-06-24T00:00:00+08:00").getTime();
 
-    function pad(n){ return String(n).padStart(2, "0"); }
+    const previous = { days: "", hours: "", minutes: "", seconds: "" };
 
-    function updateToday(){
+    function pad(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function setNumber(id, value) {
+      const el = document.getElementById(id);
+      const text = String(value);
+      if (previous[id] !== text) {
+        el.textContent = text;
+        el.classList.remove("flip");
+        void el.offsetWidth;
+        el.classList.add("flip");
+        previous[id] = text;
+      }
+    }
+
+    function updateToday() {
       const now = new Date();
       const weekdays = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
       document.getElementById("todayText").textContent =
-        `${now.getFullYear()}年${pad(now.getMonth()+1)}月${pad(now.getDate())}日 ${weekdays[now.getDay()]}`;
+        `${now.getFullYear()}年${pad(now.getMonth() + 1)}月${pad(now.getDate())}日 ${weekdays[now.getDay()]}`;
     }
 
-    function updateCountdown(){
+    function updateSince() {
+      const diff = Date.now() - sinceTime;
+      const days = Math.max(0, Math.floor(diff / 86400000) + 1);
+      document.getElementById("sinceDays").textContent = days;
+    }
+
+    function updateCountdown() {
       const diff = targetTime - Date.now();
 
-      if(diff <= 0){
-        document.querySelector(".hero").innerHTML = `
-          <div class="heart">♡</div>
+      if (diff <= 0) {
+        document.getElementById("mainContent").innerHTML = `
+          <div class="logo-heart">♡</div>
           <h1>終於跳抱了</h1>
           <p class="subtitle">這一刻，等到了 💛</p>
-          <div class="quote-card">願今天比想像中更幸福。<div class="like">I like you. 〰♡</div></div>
+          <div class="ended glass">
+            願今天比想像中更幸福。<br>
+            <div class="like">I like you. 〰♡</div>
+          </div>
         `;
         return;
       }
 
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor(diff / 3600000) % 24;
-      const minutes = Math.floor(diff / 60000) % 60;
-      const seconds = Math.floor(diff / 1000) % 60;
-
-      document.getElementById("days").textContent = days;
-      document.getElementById("hours").textContent = pad(hours);
-      document.getElementById("minutes").textContent = pad(minutes);
-      document.getElementById("seconds").textContent = pad(seconds);
+      setNumber("days", Math.floor(diff / 86400000));
+      setNumber("hours", pad(Math.floor(diff / 3600000) % 24));
+      setNumber("minutes", pad(Math.floor(diff / 60000) % 60));
+      setNumber("seconds", pad(Math.floor(diff / 1000) % 60));
     }
 
-    function toggleMusic(){
-      alert("音樂功能已保留按鈕；若要加入音樂，之後放入 mp3 檔即可。");
+    function createStars() {
+      const wrap = document.getElementById("stars");
+      for (let i = 0; i < 70; i++) {
+        const s = document.createElement("span");
+        s.className = "star";
+        s.style.left = Math.random() * 100 + "%";
+        s.style.top = Math.random() * 100 + "%";
+        s.style.animationDelay = Math.random() * 3 + "s";
+        s.style.opacity = Math.random() * 0.7 + 0.2;
+        wrap.appendChild(s);
+      }
     }
 
+    function createHearts() {
+      const wrap = document.getElementById("hearts");
+      for (let i = 0; i < 18; i++) {
+        const h = document.createElement("span");
+        h.className = "float-heart";
+        h.textContent = "♥";
+        h.style.left = Math.random() * 100 + "%";
+        h.style.animationDuration = (10 + Math.random() * 12) + "s";
+        h.style.animationDelay = Math.random() * 12 + "s";
+        h.style.fontSize = (14 + Math.random() * 18) + "px";
+        wrap.appendChild(h);
+      }
+    }
+
+    function toggleMusic() {
+      alert("音樂按鈕已保留。之後只要上傳 mp3，我可以幫你接成真正播放。");
+    }
+
+    createStars();
+    createHearts();
     updateToday();
+    updateSince();
     updateCountdown();
+
     setInterval(updateCountdown, 1000);
+    setInterval(updateSince, 60000);
   </script>
 </body>
 </html>
