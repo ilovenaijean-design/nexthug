@@ -53,7 +53,7 @@
       inset: 0;
       pointer-events: none;
       overflow: hidden;
-      z-index: -1;
+      z-index: 1;
     }
 
     .star {
@@ -69,10 +69,12 @@
 
     .float-heart {
       position: absolute;
-      color: rgba(246, 198, 91, .72);
-      font-size: 18px;
+      color: rgba(255,232,166,.98);
+      font-size: 28px;
       animation: floatUp linear infinite;
-      text-shadow: 0 0 16px rgba(246,198,91,.6);
+      text-shadow: 0 0 24px rgba(246,198,91,.95), 0 0 44px rgba(255,232,166,.75);
+      opacity: .95;
+      will-change: transform;
     }
 
     @keyframes twinkle {
@@ -88,6 +90,8 @@
     }
 
     .page {
+      position: relative;
+      z-index: 2;
       min-height: 100vh;
       width: min(100%, 980px);
       margin: 0 auto;
@@ -491,13 +495,13 @@
 
     function createHearts() {
       const wrap = document.getElementById("hearts");
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 80; i++) {
         const h = document.createElement("span");
         h.className = "float-heart";
-        h.textContent = "♥";
+        h.textContent = Math.random() > 0.5 ? "💛" : "♡";
         h.style.left = Math.random() * 100 + "%";
-        h.style.animationDuration = (10 + Math.random() * 12) + "s";
-        h.style.animationDelay = Math.random() * 12 + "s";
+        h.style.animationDuration = (14 + Math.random() * 10) + "s";
+        h.style.animationDelay = (Math.random() * 6 - 6) + "s";
         h.style.fontSize = (14 + Math.random() * 18) + "px";
         wrap.appendChild(h);
       }
