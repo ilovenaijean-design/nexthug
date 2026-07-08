@@ -336,7 +336,16 @@
         border-radius: 24px;
       }
     }
-  </style>
+  
+    .page{
+      animation: fadeIn 1.5s ease;
+    }
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(12px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+</style>
 </head>
 <body>
   <div class="stars" id="stars"></div>
@@ -404,6 +413,11 @@
       </div>
     </section>
   </main>
+
+  
+  <audio id="bgMusic" loop autoplay>
+    <source src="離別開出花.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     const targetTime = new Date("2026-07-24T13:00:00+08:00").getTime();
@@ -490,8 +504,40 @@
     }
 
     function toggleMusic() {
-      alert("音樂按鈕已保留。之後只要上傳 mp3，我可以幫你接成真正播放。");
+      const audio = document.getElementById("bgMusic");
+      const btn = document.getElementById("musicBtn");
+      if (audio.paused) {
+        audio.play().then(()=>fadeInAudio());
+        btn.textContent = "❚❚ 暫停音樂";
+      } else {
+        audio.pause();
+        btn.textContent = "♫ 播放音樂";
+      }
     }
+
+
+    const audio = document.getElementById("bgMusic");
+    audio.volume = 0.0;
+    function fadeInAudio(target=0.25,duration=3000){
+      const step=50;
+      const inc=target/(duration/step);
+      const t=setInterval(()=>{
+        audio.volume=Math.min(target,audio.volume+inc);
+        if(audio.volume>=target){clearInterval(t);}
+      },step);
+    }
+
+    window.addEventListener("load", () => {
+      const p = audio.play().then(()=>fadeInAudio());
+      if (p) {
+        p.then(() => {
+          fadeInAudio();
+          document.getElementById("musicBtn").textContent = "❚❚ 暫停音樂";
+        }).catch(() => {
+          document.getElementById("musicBtn").textContent = "♫ 點我播放音樂";
+        });
+      }
+    });
 
     createStars();
     createHearts();
